@@ -1,0 +1,29 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!-- Jakarta JSTL 表單標籤 -->
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>      
+<div class="pure-form">
+	<fieldset>
+		<legend>Book 列表</legend>
+		<table class="pure-table pure-table-bordered">
+			<thead>
+				<tr><th>書號</th><th>書名</th><th>作者</th><th>出版社</th><th>價錢</th><th>編輯</th><th>刪除</th><th>狀態</th></tr>
+			</thead>
+			<tbody>
+				<c:forEach var="bookDto" items="${ bookDtos }">
+					<tr>
+						<td>${ bookDto.bookId }</td>
+						<td>${ bookDto.bookName }</td>
+						<td>${ bookDto.author }</td>
+						<td>${ bookDto.publisher }</td>
+						<td>${ bookDto.bookPrice }</td>
+						<td><a class="button-success pure-button" href="/book/${ bookDto.bookId }">編輯</a></td>
+						<td><a class="button-error pure-button" href="/book/delete/${ bookDto.bookId }">刪除</a></td>
+					</tr>	
+				</c:forEach>
+			</tbody>
+		</table>
+	</fieldset>
+</div>
+    

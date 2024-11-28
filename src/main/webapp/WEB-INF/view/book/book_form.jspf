@@ -1,0 +1,25 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!-- Spring Form 表單標籤 -->
+<%@ taglib prefix="sp" uri="http://www.springframework.org/tags/form" %>
+<sp:form class="pure-form" method="post" modelAttribute="bookDto" action="/book" >
+	<fieldset>
+		<legend>Book 表單</legend>
+		Book 書號: <sp:input type="number" path="bookId" />
+		<sp:errors path="bookId" style="color: red" />
+		<p />
+		Book 名稱: <sp:input type="text" path="bookName" />
+		<sp:errors path="bookName" style="color: red" />
+		<p />
+		Book 作者: <sp:input type="text" path="author" />
+		<sp:errors path="author" style="color: red" />
+		<p />
+		Book 出版社: <sp:input type="text" path="publisher" />
+		<sp:errors path="publisher" style="color: red" />
+		<p />
+		Book 價錢: <sp:input type="number" path="bookPrice" />
+		<sp:errors path="bookPrice" style="color: red" />
+		<p />
+		<button type="submit" class="pure-button pure-button-primary">新增</button>
+	</fieldset>
+</sp:form>
