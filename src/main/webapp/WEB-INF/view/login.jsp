@@ -21,13 +21,14 @@
 		</style>
 	</head>
 		<body style="padding: 15px">
-		<form class="pure-form" action="/login"></form>
+		<form class="pure-form" action="/login" method="post">
 			<fieldset>
-			<legend>🪬Login 登入</legend>
+			<legend>🪬登入</legend>
 			👨‍⚕️:<input type="text" name="username" placeholder="請輸入帳號" required /><p />
 			🔐:<input type="password" name="password" placeholder="請輸入密碼" required /><p />
 			<button type="reset" class="pure-button">重置</button>
 			<button type="submit" class="pure-button pure-button-primary">登入</button>
 			</fieldset>
+			</form>
 		</body>
 </html>

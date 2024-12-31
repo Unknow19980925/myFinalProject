@@ -5,16 +5,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.example.demo.model.entity.Book;
-import com.example.demo.repository.BookRepositoryJdbc;
+import com.example.demo.repository.BookRepository;
 
 @SpringBootTest
-public class BookJPATest {
+public class DeleteBookTest {
 
 	@Autowired
-	private BookRepositoryJdbc bookRepositoryJdbc;
+	BookRepository bookRepository;
 	
-	@Test void testBookAdd() {
-		Book book=new Book(11,"C#","Wb","trt",28.0);
-		int rowcount=bookRepositoryJdbc.save(book);
+	@Test
+	void delete() {
+		 Book book=bookRepository.findById(1).get();
+		 
+		 bookRepository.delete(book);
 	}
 }

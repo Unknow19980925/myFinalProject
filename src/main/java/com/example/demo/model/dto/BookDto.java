@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BookDto {
 //思考一下price的範圍,再輸入至message.proparties
-	
+	//rentId
 	@NotNull(message = "{bookDto.bookId.notNull}")
 	private Integer bookId;
 	
@@ -26,5 +26,8 @@ public class BookDto {
 	@Positive
 	private Double bookPrice;
 
+	@NotNull(message = "{bookDto.statusName.notNull}")
+	private Boolean statusName;
+	
 	
 }

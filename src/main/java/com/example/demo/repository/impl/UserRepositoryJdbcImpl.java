@@ -19,7 +19,7 @@ public class UserRepositoryJdbcImpl implements UserRepositoryJdbc {
 		@Autowired
 		private JdbcTemplate jdbcTemplate;
 		
-		@Value("{user.sql.getUser}")
+		@Value("${user.sql.getUser}")
 		private String getUserSql;
 
 		@Override

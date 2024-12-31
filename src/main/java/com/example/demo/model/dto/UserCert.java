@@ -1,5 +1,8 @@
 package com.example.demo.model.dto;
 
+import lombok.Data;
+
+@Data
 public class UserCert {
 
 	private Integer userId;
@@ -12,13 +15,15 @@ public class UserCert {
 		this.role=role;
 	} 
 	
-	public Integer getUserId() {
-		return userId;
+	public UserDto toUserDto() {
+		UserDto userDto=new UserDto();
+		userDto.setUserId(this.userId);
+		userDto.setUsername(this.username);
+		userDto.setRole(role);
+		return userDto;
 	}
-	public String getUsername() {
-		return username;
-	}
-
+	
+	
 	@Override
 	public String toString() {
 	return "UserCert[userId="+userId+",username= "+username+", role="+role+"]";	

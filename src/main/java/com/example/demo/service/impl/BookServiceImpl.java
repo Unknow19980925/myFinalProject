@@ -2,94 +2,127 @@ package com.example.demo.service.impl;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.exception.BookAlreadyExistsException;
-import com.example.demo.exception.BookException;
 import com.example.demo.exception.BookNotFoundException;
 import com.example.demo.mapper.BookMapper;
 import com.example.demo.model.dto.BookDto;
+
 import com.example.demo.model.entity.Book;
-import com.example.demo.repository.BookRepositoryJdbc;
+import com.example.demo.model.entity.BookStatus;
+import com.example.demo.repository.BookRepository;
+
 import com.example.demo.service.BookService;
+
 @Service
 public class BookServiceImpl implements BookService{
 
 	@Autowired
-	private BookRepositoryJdbc bookRepositoryJdbc;
+	private BookRepository bookRepository;
+	
+	
+	@Autowired
+	private ModelMapper modelMapper;
 	
 	@Autowired
 	private BookMapper bookMapper;
 
 	@Override
 	public List<BookDto> getAllBooks() {
-		return bookRepositoryJdbc.findAll()
+		return bookRepository.findAll()
 				.stream()
-				.map(bookMapper::toDto)
+				.map(book->modelMapper.map(book, BookDto.class))
 				.collect(toList());
 	}
 
 	@Override
-	public BookDto getBookById(Integer bookId) {
-		Book book=bookRepositoryJdbc.findById(bookId)
-				.orElseThrow(()->new BookNotFoundException("找不到書籍: bookId: "+bookId));
+	public Optional<BookDto> getBookById(Integer bookId) {
+		Optional<Book>optBook=bookRepository.findById(bookId);
+		if(optBook.isEmpty()) {
+			return Optional.empty();
+		}
+		BookDto bookDto = modelMapper.map(optBook.get(), BookDto.class);
+	    return Optional.of(bookDto);
+	}
+
+	@Override
+	public BookDto updateBook(BookDto bookDto) {
+		Optional<Book>optBook=bookRepository.findById(bookDto.getBookId());
+		if(optBook.isEmpty()) {
+			throw new BookNotFoundException("修改失敗: "+bookDto.getBookId()+"不存在");
+		}
+		 BookStatus bookStatus = new BookStatus();
+		    bookStatus.setStatusName(bookDto.getStatusName());
+		    Book book=bookMapper.toEntity(bookDto);
+			book.setBookStatus(bookStatus);
+		    bookRepository.save(book);
+			return bookMapper.toDto(book);
+	}
+
+	
+	@Override
+	public void deleteBook(Integer bookId) {
+		Optional<Book>optBook=bookRepository.findById(bookId);
+		if(optBook.isEmpty()) {
+			throw new BookNotFoundException("刪除失敗: "+bookId+"不存在");
+		}
+		bookRepository.deleteById(bookId);
+	}
+
+	@Override
+	public BookDto saveBook(BookDto bookDto) {
+		Book book=modelMapper.map(bookDto, Book.class);
+		BookStatus bookStatus=new BookStatus();
+		bookStatus.setStatusName(bookDto.getStatusName());
+		book.setBookStatus(bookStatus);
+		bookRepository.save(book);
+		return modelMapper.map(book, BookDto.class);
+	}
+
+	@Override
+	public BookDto addBook(BookDto bookDto) {
+	    BookStatus bookStatus = new BookStatus();
+	    bookStatus.setStatusName(bookDto.getStatusName());
+	    Book book=bookMapper.toEntity(bookDto);
+		book.setBookStatus(bookStatus);
+	    bookRepository.save(book);
 		return bookMapper.toDto(book);
 	}
 
 	@Override
-	public void addBook(BookDto bookDto) {
-		Optional<Book>optBook=bookRepositoryJdbc.findById(bookDto.getBookId());
-		if(optBook.isPresent()) {
-			throw new BookAlreadyExistsException("新增失敗: "+bookDto.getBookId()+"已存在");
-		}
-		Book book=bookMapper.toEntity(bookDto);
-		int rowcount=bookRepositoryJdbc.save(book);
-		if(rowcount==0) {
-			throw new BookException("無法新增");
-		}
-	}
-
-	@Override
-	public void addBook(Integer bookId, String bookName, String author, String publisher, Double price) {
-		BookDto bookDto=new BookDto(bookId,bookName,author,publisher,price);
+	public void addBook(Integer bookId, String bookName, String author, String publisher, Double price,
+			Boolean statusName) {
+		BookDto bookDto=new BookDto(bookId,bookName,author,publisher,price,statusName);
 		addBook(bookDto);
-	}
-
-	@Override
-	public void updateBook(Integer bookId, BookDto bookDto) {
-		Optional<Book>optBook=bookRepositoryJdbc.findById(bookId);
-		if(optBook.isEmpty()) {
-			throw new BookNotFoundException("修改失敗: "+bookId+"不存在");
-		}
-		bookDto.setBookId(bookId);
-		Book book=bookMapper.toEntity(bookDto);
-		int rowcount=bookRepositoryJdbc.update(book);
-		if(rowcount==0) {
-			throw new BookException("無任何紀錄被修改");
-		}
-	}
-
-	@Override
-	public void updateBook(Integer bookId, String bookName, String author, String publisher, Double price) {
-		BookDto bookDto=new BookDto(bookId,bookName,author,publisher,price);
-		updateBook(bookId,bookDto);
 		
 	}
 
 	@Override
-	public void deleteBook(Integer bookId) {
-		Optional<Book>optBook=bookRepositoryJdbc.findById(bookId);
-		if(optBook.isEmpty()) {
-			throw new BookNotFoundException("刪除失敗: "+bookId+"不存在");
-		}
-		
-		int rowcount=bookRepositoryJdbc.deleteById(bookId);
-		if(rowcount==0) {
-			throw new BookException("無任何紀錄被修改");
-		}
+	public void updateBook(Integer bookId, String bookName, String author, String publisher, Double price,
+			Boolean statusName) {
+		BookDto bookDto=new BookDto(bookId,bookName,author,publisher,price,statusName);	
+		updateBook(bookDto);
 	}
-		
+	
+	
+
+	
+
+	@Override
+	public List<BookDto> getAllAvaliableBooks(Boolean statusName) {
+		List<Book>books=bookRepository.findByBookStatusStatusName(statusName);
+		return books.stream().map(book->new BookDto(book.getBookId(),book.getBookName(),
+				book.getAuthor(),book.getPublisher(),book.getBookPrice(),
+				book.getBookStatus().getStatusName())).collect(Collectors.toList());
+	}
+	@Override
+	public List<BookDto> getBooksByRentListId(Integer rentId) {
+		List<Book>books=bookRepository.findByRentItem_RentList_RentId(rentId);	
+		return books.stream().map(book->modelMapper.map(book,BookDto.class)).collect(Collectors.toList());
+	}
 	}
